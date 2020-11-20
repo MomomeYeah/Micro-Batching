@@ -15,30 +15,37 @@ class JobResult:
         self.result = None
 
     def complete(self):
-        print ("Running job")
+        print ("Running {}".format(self.job))
         self.result = self.job.job_fn()
 
-        print ("Marking job as done")
+        print ("Marking {} as done".format(self.job))
         self.event.set()
 
     # TODO: catch exceptions?
     # TODO: nicer to use event here, but doesn't seem to want to work...
     async def get_result(self):
-        print ("Job result waiting completion")
+        print ("Awaiting completion for {}".format(self.job))
         while True:
             await asyncio.sleep(1)
             # await self.event.wait()
 
             if self.result:
-                print ("Job result done!")
+                print ("{} result ready!".format(self.job))
                 break
 
         return self.result
 
 
 class Job:
+    counter = 1
+
     def __init__(self, job_fn):
         self.job_fn = job_fn
+        self.job_id = Job.counter
+        Job.counter += 1
+
+    def __str__(self):
+        return "Job {}".format(self.job_id)
 
 
 class BatchControllerLoop(threading.Thread):
@@ -143,25 +150,21 @@ class BatchController:
 
 
 async def main(controller):
-    def job_fn(x): return x + 2
-    job1 = Job(lambda: job_fn(1))
-    job2 = Job(lambda: job_fn(2))
-    job3 = Job(lambda: job_fn(3))
+    results = []
+    for i in range(3):
+        print ("Adding new job")
+        # capture current value of loop variable here by using default value
+        def job_fn(x=i):
+            return x + 2
+        job = Job(job_fn)
+        results.append(controller.add_job(job))
+        print ("Added {}".format(job))
+    print ("All jobs added")
 
-    print ("Adding job 1")
-    result1 = controller.add_job(job1)
-    print ("Adding job 2")
-    result2 = controller.add_job(job2)
-    print ("Adding job 3")
-    result3 = controller.add_job(job3)
-    print ("Done")
-
-    print ("Getting first result")
-    await asyncio.gather(
-        result1.get_result(), result2.get_result(), result3.get_result())
-    print ("Result 1 is {}".format(result1.result))
-    print ("Result 2 is {}".format(result1.result))
-    print ("Result 3 is {}".format(result1.result))
+    print ("Waiting for job results to be ready")
+    await asyncio.gather(*[result.get_result() for result in results])
+    for i, result in enumerate(results):
+        print ("Result {} is {}".format(i, result.result))
 
 
 if __name__ == "__main__":

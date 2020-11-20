@@ -15,6 +15,15 @@
 * good documentation / comments
 * a well written, maintainable test suite
 
+## Running the Program with Vagrant
+
+If you have Vagrant installed, the easiest way to run this program would be:
+
+* `vagrant up` - provision an Ubuntu 20.04 VM
+* `vagrant ssh` - SSH into the newly-created VM
+* `cd /vagrant` - go to the Vagrant working directory
+* `python3 job_runner.py ` - use `--help` for commandline options
+
 ## Thoughts
 
 * if we can't implement `BatchProcessor` then we'll have to mock it, presumably?
@@ -23,4 +32,3 @@
 * do we process any time we hit either max batch size or interval?
 * how does the batcher accept jobs? expose API?
 * https://stackoverflow.com/questions/43325501/how-do-i-write-a-sequence-of-promises-in-python
-* still getting KeyboardInterrupt errors when shutting down sometimes

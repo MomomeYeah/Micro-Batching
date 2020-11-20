@@ -177,9 +177,15 @@ if __name__ == "__main__":
         controller = BatchController(
             batch_size=batch_size, batch_interval=batch_interval, batch_processor=processor)
 
+        # run main loop
+        asyncio.run(main(controller=controller))
+
+        # sleep for a while and run again
+        time.sleep(15)
         asyncio.run(main(controller=controller))
     except KeyboardInterrupt:
-        controller.shutdown()
+        pass
     except Exception as e:
         print ("Exception: {}".format(e))
+    finally:
         controller.shutdown()

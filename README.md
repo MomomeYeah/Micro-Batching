@@ -43,5 +43,6 @@ If you have Vagrant installed, the easiest way to run this program would be:
 
 ## TODO Items
 
+* better name than job_runner for main class
 * it would be nicer to use events to detect when `JobResults` are ready, so that
   a sleep-and-check loop isn't necessary

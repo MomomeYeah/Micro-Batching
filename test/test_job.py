@@ -10,10 +10,13 @@ def test_create_job():
     """Test that Jobs can be created"""
     job_fn = lambda: None
 
-    # create a job, and make sure its ID is 1
-    job1 = Job(job_fn = job_fn)
-    assert job1.job_id == 1
+    # get current Job counter value
+    job_id = Job.counter
 
-    # create another one, and make sure its ID is 2
+    # create a job, and make sure its ID matches the class counter above
+    job1 = Job(job_fn = job_fn)
+    assert job1.job_id == job_id
+
+    # create another one, and make sure its ID has been incremented
     job2 = Job(job_fn = job_fn)
-    assert job2.job_id == 2
+    assert job2.job_id == job_id + 1

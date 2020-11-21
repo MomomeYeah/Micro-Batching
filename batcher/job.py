@@ -24,22 +24,26 @@ class JobResult:
 
         self.job = job
         self.result = None
+        self.error = False
+        self.error_message = None
 
     def __str__(self) -> str:
         return "{}".format(self.job)
 
     def complete(self) -> None:
         print ("Running {}".format(self.job))
-        self.result = self.job.job_fn()
+        try:
+            self.result = self.job.job_fn()
+        except Exception as e:
+            self.error = True
+            self.error_message = str(e)
 
-    # TODO: catch exceptions?
-    # TODO: nicer to use event here, but doesn't seem to want to work...
     async def get_result(self):
         print ("Awaiting completion for {}".format(self.job))
         while True:
             await asyncio.sleep(1)
 
-            if self.result:
+            if self.result or self.error:
                 print ("{} result ready!".format(self.job))
                 break
 

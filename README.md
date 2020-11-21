@@ -40,3 +40,8 @@ If you have Vagrant installed, the easiest way to run this program would be:
 * `BatchProcessor` must implement `BatchProcessorInterface`, and can be provided by
   the caller. This code defines `SimpleBatchProcessor` for testing purposes, and as
   an implementation example
+
+## TODO Items
+
+* it would be nicer to use events to detect when `JobResults` are ready, so that
+  a sleep-and-check loop isn't necessary

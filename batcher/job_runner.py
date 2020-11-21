@@ -126,7 +126,10 @@ async def main(controller):
     print ("Waiting for job results to be ready")
     await asyncio.gather(*[result.get_result() for result in results])
     for result in results:
-        print ("Result for {} is {}".format(result, result.result))
+        if result.error:
+            print ("{} failed with error {}".format(result, result.error_message))
+        else:
+            print ("Result for {} is {}".format(result, result.result))
 
 
 if __name__ == "__main__":

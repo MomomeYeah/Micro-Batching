@@ -1,50 +1,16 @@
 import asyncio
 import threading
 import time
+from typing import Callable
+
 from args import parse_args
+from job import Job, JobResult
+from processor_interface import BatchProcessorInterface
 from simple_batch_processor import SimpleBatchProcessor
 
 
-class JobResult:
-    def __init__(self, job):
-        if not isinstance(job, Job):
-            raise Exception("Get a real job!")
-
-        self.job = job
-        self.result = None
-
-    def complete(self):
-        print ("Running {}".format(self.job))
-        self.result = self.job.job_fn()
-
-    # TODO: catch exceptions?
-    # TODO: nicer to use event here, but doesn't seem to want to work...
-    async def get_result(self):
-        print ("Awaiting completion for {}".format(self.job))
-        while True:
-            await asyncio.sleep(1)
-
-            if self.result:
-                print ("{} result ready!".format(self.job))
-                break
-
-        return self.result
-
-
-class Job:
-    counter = 1
-
-    def __init__(self, job_fn):
-        self.job_fn = job_fn
-        self.job_id = Job.counter
-        Job.counter += 1
-
-    def __str__(self):
-        return "Job {}".format(self.job_id)
-
-
 class BatchControllerLoop(threading.Thread):
-    def __init__(self, interval, invokable):
+    def __init__(self, interval: int, invokable: Callable):
         self.interval = interval
         self.invokable = invokable
         self._stop = threading.Event()
@@ -67,7 +33,7 @@ class BatchControllerLoop(threading.Thread):
 
 
 class BatchController:
-    def __init__(self, batch_size, batch_interval, batch_processor):
+    def __init__(self, batch_size: int, batch_interval: int, batch_processor: BatchProcessorInterface):
         # how big to allow the job queue to get before processing batch
         self.batch_size = batch_size
 
@@ -89,7 +55,7 @@ class BatchController:
         self.process_thread = threading.Thread(target=self.loop.run)
         self.process_thread.start()
 
-    def add_job(self, job):
+    def add_job(self, job: Job):
         """Add a job to the job queue, returning a job result"""
         # if shutting down, just return
         if self.shutting_down:
@@ -106,7 +72,7 @@ class BatchController:
 
         return result
 
-    def process_jobs(self, process_all=False):
+    def process_jobs(self, process_all: bool=False):
         jobs = []
 
         # in a loop, pop jobs from the queue until we have enough to process.
@@ -127,7 +93,7 @@ class BatchController:
             jobs.append(self.jobs.pop(0))
 
         # process the jobs
-        self.batch_processor.process_jobs(jobs)
+        self.batch_processor.process(jobs)
 
     def shutdown(self):
         """Exit after all jobs have been processed"""
@@ -149,6 +115,7 @@ async def main(controller):
     for i in range(3):
         print ("Adding new job")
         # capture current value of loop variable here by using default value
+
         def job_fn(x=i):
             return x + 2
         job = Job(job_fn)

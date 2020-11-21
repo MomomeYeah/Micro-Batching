@@ -1,5 +1,6 @@
 import pytest
-from job_runner import Job, JobResult
+
+from job import Job, JobResult
 
 def test_create_job_result_without_job():
     """Test that JobResults cannot be created without jobs"""
@@ -8,7 +9,7 @@ def test_create_job_result_without_job():
 
 def test_create_job_result_with_invalid_job():
     """Test that JobResults must be created with a valid Job"""
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         job_result = JobResult(job="job")
 
 def test_create_job_result(job):

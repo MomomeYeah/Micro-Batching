@@ -1,14 +1,12 @@
-import asyncio
+from typing import List
+
+from job import JobResult
+from processor_interface import BatchProcessorInterface
 
 
-class SimpleBatchProcessor:
-    def __init__(self):
-        pass
-
-    def process_jobs(self, jobs):
-        print ("Processing jobs")
-        for job in jobs:
-            job.complete()
-            print ("{} done".format(job.job))
-
-        return True
+class SimpleBatchProcessor(BatchProcessorInterface):
+    def process(self, job_results: List[JobResult]) -> None:
+        print ("Processing job results")
+        for job_result in job_results:
+            job_result.complete()
+            print ("{} done".format(job_result))

@@ -37,8 +37,6 @@ If you have Vagrant installed, the easiest way to run this program would be:
 * batches will be processed at most every `batch_interval` seconds
 * if `batch_size` jobs exist at any point, then batch will be processed immediately
   without resetting the `batch_interval` loop
-
-## Thoughts
-
-* if we can't implement `BatchProcessor` then we'll have to mock it, presumably?
-* https://stackoverflow.com/questions/43325501/how-do-i-write-a-sequence-of-promises-in-python
+* `BatchProcessor` must implement `BatchProcessorInterface`, and can be provided by
+  the caller. This code defines `SimpleBatchProcessor` for testing purposes, and as
+  an implementation example

@@ -1,10 +1,16 @@
 import pytest
-from job_runner import Job
+
+from job import Job
 
 def test_create_job_without_job_fn():
     """Test that Jobs cannot be created without functions"""
     with pytest.raises(TypeError):
         job = Job()
+
+def test_create_job_with_invalid_fn():
+    """Test that Jobs must be created with a valid function"""
+    with pytest.raises(ValueError):
+        job = Job(job_fn="job_fn")
 
 def test_create_job():
     """Test that Jobs can be created"""

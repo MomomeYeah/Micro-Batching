@@ -8,12 +8,12 @@ ROOT_DIR = os.path.dirname(TEST_DIR)
 PACKAGE_DIR = os.path.join(ROOT_DIR, "batcher")
 sys.path.append(PACKAGE_DIR)
 
-from job_runner import Job
+from job import Job
 
 @pytest.fixture
 def job():
     return Job(job_fn=lambda: 2)
 
 @pytest.fixture
-def job_result(job):
+def job_result(job: Job):
     return JobResult(job=job)

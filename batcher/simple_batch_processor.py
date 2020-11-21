@@ -7,9 +7,8 @@ class SimpleBatchProcessor:
 
     def process_jobs(self, jobs):
         print ("Processing jobs")
-        for index, job in enumerate(jobs):
+        for job in jobs:
             job.complete()
-
-            print ("Job {} done".format(index))
+            print ("{} done".format(job.job))
 
         return True

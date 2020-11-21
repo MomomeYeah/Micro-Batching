@@ -11,15 +11,11 @@ class JobResult:
             raise Exception("Get a real job!")
 
         self.job = job
-        self.event = asyncio.Event()
         self.result = None
 
     def complete(self):
         print ("Running {}".format(self.job))
         self.result = self.job.job_fn()
-
-        print ("Marking {} as done".format(self.job))
-        self.event.set()
 
     # TODO: catch exceptions?
     # TODO: nicer to use event here, but doesn't seem to want to work...
@@ -27,7 +23,6 @@ class JobResult:
         print ("Awaiting completion for {}".format(self.job))
         while True:
             await asyncio.sleep(1)
-            # await self.event.wait()
 
             if self.result:
                 print ("{} result ready!".format(self.job))

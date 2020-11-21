@@ -1,6 +1,7 @@
 import asyncio
 import threading
 import time
+from collections import deque
 from typing import Callable
 
 from args import parse_args
@@ -47,10 +48,9 @@ class BatchController:
         self.shutting_down = False
 
         # the job queue
-        # TODO: collections.deque would be more efficient here
-        self.jobs = []
+        self.jobs = deque()
 
-        # main thread
+        # batch interval thread
         self.loop = BatchControllerLoop(interval=self.batch_interval, invokable=self.process_jobs)
         self.process_thread = threading.Thread(target=self.loop.run)
         self.process_thread.start()
@@ -90,7 +90,7 @@ class BatchController:
                 break
 
             # otherwise, pop a job from the queue
-            jobs.append(self.jobs.pop(0))
+            jobs.append(self.jobs.popleft())
 
         # process the jobs
         self.batch_processor.process(jobs)
@@ -125,8 +125,8 @@ async def main(controller):
 
     print ("Waiting for job results to be ready")
     await asyncio.gather(*[result.get_result() for result in results])
-    for i, result in enumerate(results):
-        print ("Result {} is {}".format(i, result.result))
+    for result in results:
+        print ("Result for {} is {}".format(result, result.result))
 
 
 if __name__ == "__main__":

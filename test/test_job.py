@@ -1,6 +1,6 @@
 import pytest
 
-from job import Job
+from batcher.job import Job
 
 def test_create_job_without_job_fn():
     """Test that Jobs cannot be created without functions"""

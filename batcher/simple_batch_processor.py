@@ -1,7 +1,7 @@
 from typing import List
 
-from job import JobResult
-from processor_interface import BatchProcessorInterface
+from .job import JobResult
+from .processor_interface import BatchProcessorInterface
 
 
 class SimpleBatchProcessor(BatchProcessorInterface):

@@ -1,6 +1,6 @@
 from typing import List
 
-from job import JobResult
+from .job import JobResult
 
 
 class BatchProcessorInterface:

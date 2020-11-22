@@ -1,6 +1,6 @@
 import pytest
 
-from job import Job, JobResult
+from batcher.job import Job, JobResult
 
 def test_create_job_result_without_job():
     """Test that JobResults cannot be created without jobs"""

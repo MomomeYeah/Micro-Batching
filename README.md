@@ -15,14 +15,16 @@
 * good documentation / comments
 * a well written, maintainable test suite
 
-## Running the Program with Vagrant
+## Running the Sample Program with Vagrant
 
-If you have Vagrant installed, the easiest way to run this program would be:
+The sample program `micro_batching.py` demonstrates an example usage of the library.
+
+If you have Vagrant installed, the easiest way to run this sample program would be:
 
 * `vagrant up` - provision an Ubuntu 20.04 VM
 * `vagrant ssh` - SSH into the newly-created VM
 * `cd /vagrant` - go to the Vagrant working directory
-* `python3 job_runner.py ` - use `--help` for commandline options
+* `python3 micro_batching.py ` - use `--help` for commandline options
 
 ## Running Tests
 
@@ -43,6 +45,6 @@ If you have Vagrant installed, the easiest way to run this program would be:
 
 ## TODO Items
 
-* better name than job_runner for main class
+* implement full set of tests
 * it would be nicer to use events to detect when `JobResults` are ready, so that
   a sleep-and-check loop isn't necessary

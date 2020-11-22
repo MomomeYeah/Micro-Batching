@@ -1,13 +1,10 @@
-import asyncio
 import threading
-import time
 from collections import deque
 from typing import Callable
 
-from args import parse_args
-from job import Job, JobResult
-from processor_interface import BatchProcessorInterface
-from simple_batch_processor import SimpleBatchProcessor
+from .job import Job, JobResult
+from .processor_interface import BatchProcessorInterface
+from .simple_batch_processor import SimpleBatchProcessor
 
 
 class BatchControllerLoop(threading.Thread):
@@ -21,6 +18,9 @@ class BatchControllerLoop(threading.Thread):
 
     def stopped(self):
         return self._stop.isSet()
+
+    def running(self):
+        return not self.stopped()
 
     def run(self):
         while not self.stopped():
@@ -36,12 +36,18 @@ class BatchControllerLoop(threading.Thread):
 class BatchController:
     def __init__(self, batch_size: int, batch_interval: int, batch_processor: BatchProcessorInterface):
         # how big to allow the job queue to get before processing batch
+        if not isinstance(batch_size, int):
+            raise ValueError("Batch size must be an integer")
         self.batch_size = batch_size
 
         # max time to wait before processing batch
+        if not isinstance(batch_interval, int):
+            raise ValueError("Batch interval must be an integer")
         self.batch_interval = batch_interval
 
         # batch processor object that will process a set of jobs
+        if not isinstance(batch_processor, BatchProcessorInterface):
+            raise ValueError("Batch processor must implement BatchProcessorInterface")
         self.batch_processor = batch_processor
 
         # set when shutting down
@@ -72,7 +78,7 @@ class BatchController:
 
         return result
 
-    def process_jobs(self, process_all: bool=False):
+    def process_jobs(self, process_all: bool = False):
         jobs = []
 
         # in a loop, pop jobs from the queue until we have enough to process.
@@ -108,49 +114,3 @@ class BatchController:
         self.loop.stop()
         self.process_thread.join()
         print ("Shutdown process complete")
-
-
-async def main(controller):
-    results = []
-    for i in range(3):
-        print ("Adding new job")
-        # capture current value of loop variable here by using default value
-
-        def job_fn(x=i):
-            return x + 2
-        job = Job(job_fn)
-        results.append(controller.add_job(job))
-        print ("Added {}".format(job))
-    print ("All jobs added")
-
-    print ("Waiting for job results to be ready")
-    await asyncio.gather(*[result.get_result() for result in results])
-    for result in results:
-        if result.error:
-            print ("{} failed with error {}".format(result, result.error_message))
-        else:
-            print ("Result for {} is {}".format(result, result.result))
-
-
-if __name__ == "__main__":
-    try:
-        args = parse_args()
-        batch_size = args.batch_size
-        batch_interval = args.batch_interval
-
-        processor = SimpleBatchProcessor()
-        controller = BatchController(
-            batch_size=batch_size, batch_interval=batch_interval, batch_processor=processor)
-
-        # run main loop
-        asyncio.run(main(controller=controller))
-
-        # sleep for a while and run again
-        time.sleep(15)
-        asyncio.run(main(controller=controller))
-    except KeyboardInterrupt:
-        pass
-    except Exception as e:
-        print ("Exception: {}".format(e))
-    finally:
-        controller.shutdown()

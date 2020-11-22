@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from typing import Callable
 
 
@@ -27,11 +28,13 @@ class JobResult:
         self.error = False
         self.error_message = None
 
+        self.logger = logging.getLogger("MicroBatching")
+
     def __str__(self) -> str:
         return "{}".format(self.job)
 
     def complete(self) -> None:
-        print ("Running {}".format(self.job))
+        self.logger.debug ("Running {}".format(self.job))
         try:
             self.result = self.job.job_fn()
         except Exception as e:
@@ -39,12 +42,12 @@ class JobResult:
             self.error_message = str(e)
 
     async def get_result(self):
-        print ("Awaiting completion for {}".format(self.job))
+        self.logger.debug ("Awaiting completion for {}".format(self.job))
         while True:
             await asyncio.sleep(1)
 
             if self.result or self.error:
-                print ("{} result ready!".format(self.job))
+                self.logger.debug ("{} result ready!".format(self.job))
                 break
 
         return self.result

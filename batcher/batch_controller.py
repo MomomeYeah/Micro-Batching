@@ -1,3 +1,4 @@
+import logging
 import threading
 from collections import deque
 from typing import Callable
@@ -13,6 +14,8 @@ class BatchControllerLoop(threading.Thread):
         self.invokable = invokable
         self._stop = threading.Event()
 
+        self.logger = logging.getLogger("MicroBatching")
+
     def stop(self):
         self._stop.set()
 
@@ -24,12 +27,12 @@ class BatchControllerLoop(threading.Thread):
 
     def run(self):
         while not self.stopped():
-            print ("Worker thread sleeping for {} seconds".format(self.interval))
+            self.logger.debug("Worker thread sleeping for {} seconds".format(self.interval))
             self._stop.wait(self.interval)
             if self.stopped():
-                print ("Worker thread done")
+                self.logger.debug("Worker thread done")
                 continue
-            print ("Worker thread invoking task")
+            self.logger.debug("Worker thread invoking task")
             self.invokable()
 
 
@@ -56,6 +59,9 @@ class BatchController:
         # the job queue
         self.jobs = deque()
 
+        # set logger
+        self.logger = logging.getLogger("MicroBatching")
+
         # batch interval thread
         self.loop = BatchControllerLoop(interval=self.batch_interval, invokable=self.process_jobs)
         self.process_thread = threading.Thread(target=self.loop.run)
@@ -73,7 +79,7 @@ class BatchController:
 
         # if we've hit the max batch size, then process now
         if len(self.jobs) >= self.batch_size:
-            print ("Main thread has {} jobs, processing now".format(len(self.jobs)))
+            self.logger.debug("Main thread has {} jobs, processing now".format(len(self.jobs)))
             self.process_jobs()
 
         return result
@@ -103,14 +109,14 @@ class BatchController:
 
     def shutdown(self):
         """Exit after all jobs have been processed"""
-        print ("Shutting down...")
+        self.logger.debug("Shutting down...")
         # mark ourselves as shutting down, so that no new jobs are accepted
         self.shutting_down = True
-        print ("Processing all remaining jobs...")
+        self.logger.debug("Processing all remaining jobs...")
         # process all remaining jobs
         self.process_jobs(process_all=True)
-        print ("Terminating worker thread...")
+        self.logger.debug("Terminating worker thread...")
         # once done, stop the looping interval processor and end the thread
         self.loop.stop()
         self.process_thread.join()
-        print ("Shutdown process complete")
+        self.logger.debug("Shutdown process complete")

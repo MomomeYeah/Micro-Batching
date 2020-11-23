@@ -45,6 +45,5 @@ If you have Vagrant installed, the easiest way to run this sample program would 
 
 ## TODO Items
 
-* implement full set of tests
 * it would be nicer to use events to detect when `JobResults` are ready, so that
   a sleep-and-check loop isn't necessary

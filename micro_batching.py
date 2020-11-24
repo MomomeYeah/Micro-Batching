@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import logging
 import os
+import random
 import sys
 import time
 
@@ -32,6 +33,10 @@ async def main(logger: logging.Logger, controller: BatchController):
         # capture current value of loop variable here by using default value
 
         def job_fn(x = i):
+            # 50% chance for the job to throw an Exception
+            if random.randrange(2):
+                raise Exception("Random failure!")
+
             return x + 2
         job = Job(job_fn)
         results.append(controller.add_job(job))

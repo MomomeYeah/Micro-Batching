@@ -17,7 +17,17 @@ def test_create_job_result(job):
     # create a job result, and make sure its result is None
     job_result = JobResult(job=job)
     assert job_result.result is None
+    assert job_result.error == False
+    assert job_result.error_message is None
 
-    # complete the job, and make sure its result is correct
-    job_result.complete()
-    assert job_result.result == job_result.job.job_fn()
+    # set a positive result, and make sure its job is updated correctly
+    job_result.set_result(result="result")
+    assert job_result.result == "result"
+    assert job_result.error == False
+    assert job_result.error_message is None
+
+    # set an error result, and make sure its job is updated correctly
+    job_result.set_result(result=Exception("result"))
+    assert job_result.result is None
+    assert job_result.error == True
+    assert job_result.error_message == "result"

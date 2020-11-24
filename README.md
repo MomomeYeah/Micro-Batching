@@ -42,9 +42,3 @@ If you have Vagrant installed, the easiest way to run this sample program would 
 * `BatchProcessor` must implement `BatchProcessorInterface`, and can be provided by
   the caller. This code defines `SimpleBatchProcessor` for testing purposes, and as
   an implementation example
-
-## TODO Items
-
-* perhaps `JobResult` shouldn't implement `complete`? Just expose a method to set the result?
-* it would be nicer to use events to detect when `JobResults` are ready, so that
-  a sleep-and-check loop isn't necessary

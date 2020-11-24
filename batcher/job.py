@@ -33,15 +33,26 @@ class JobResult:
     def __str__(self) -> str:
         return "{}".format(self.job)
 
-    def complete(self) -> None:
-        self.logger.debug("Running {}".format(self.job))
-        try:
-            self.result = self.job.job_fn()
-        except Exception as e:
+    def set_result(self, result: Any) -> None:
+        """Set the results of a job.
+
+        If the result is an Exception (or any subclass) then this will be marked
+        as an error, and otherwise the actual result of the job will be set"""
+        self.logger.debug("Setting result for {}".format(self.job))
+        if isinstance(result, Exception):
+            self.result = None
             self.error = True
-            self.error_message = str(e)
+            self.error_message = str(result)
+        else:
+            self.result = result
+            self.error = False
+            self.error_message = None
 
     async def get_result(self) -> Any:
+        """Wait for Job to be processed, returning the result
+
+        It would be nicer to use an asyncio.Event to mark completion here, to
+        avoid needing to sleep loop."""
         self.logger.debug("Awaiting completion for {}".format(self.job))
         while True:
             await asyncio.sleep(1)

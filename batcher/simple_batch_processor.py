@@ -12,5 +12,10 @@ class SimpleBatchProcessor(BatchProcessorInterface):
     def process(self, job_results: List[JobResult]) -> None:
         self.logger.debug("Processing job results")
         for job_result in job_results:
-            job_result.complete()
+            try:
+                result = job_result.job.job_fn()
+            except Exception as e:
+                result = e
+
+            job_result.set_result(result=result)
             self.logger.debug("{} done".format(job_result))

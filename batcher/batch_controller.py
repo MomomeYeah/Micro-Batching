@@ -9,23 +9,23 @@ from .simple_batch_processor import SimpleBatchProcessor
 
 
 class BatchControllerLoop(threading.Thread):
-    def __init__(self, interval: int, invokable: Callable):
+    def __init__(self, interval: int, invokable: Callable) -> None:
         self.interval = interval
         self.invokable = invokable
         self._stop = threading.Event()
 
         self.logger = logging.getLogger("MicroBatching")
 
-    def stop(self):
+    def stop(self) -> None:
         self._stop.set()
 
-    def stopped(self):
+    def stopped(self) -> bool:
         return self._stop.isSet()
 
-    def running(self):
+    def running(self) -> bool:
         return not self.stopped()
 
-    def run(self):
+    def run(self) -> None:
         while not self.stopped():
             self.logger.debug("Worker thread sleeping for {} seconds".format(self.interval))
             self._stop.wait(self.interval)
@@ -37,7 +37,7 @@ class BatchControllerLoop(threading.Thread):
 
 
 class BatchController:
-    def __init__(self, batch_size: int, batch_interval: int, batch_processor: BatchProcessorInterface):
+    def __init__(self, batch_size: int, batch_interval: int, batch_processor: BatchProcessorInterface) -> None:
         # how big to allow the job queue to get before processing batch
         if not isinstance(batch_size, int):
             raise ValueError("Batch size must be an integer")
@@ -67,7 +67,7 @@ class BatchController:
         self.process_thread = threading.Thread(target=self.loop.run)
         self.process_thread.start()
 
-    def add_job(self, job: Job):
+    def add_job(self, job: Job) -> JobResult:
         """Add a job to the job queue, returning a job result"""
         # if shutting down, just return
         if self.shutting_down:
@@ -84,7 +84,7 @@ class BatchController:
 
         return result
 
-    def process_jobs(self, process_all: bool = False):
+    def process_jobs(self, process_all: bool = False) -> None:
         jobs = []
 
         # in a loop, pop jobs from the queue until we have enough to process.
@@ -107,7 +107,7 @@ class BatchController:
         # process the jobs
         self.batch_processor.process(jobs)
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """Exit after all jobs have been processed"""
         self.logger.debug("Shutting down...")
         # mark ourselves as shutting down, so that no new jobs are accepted

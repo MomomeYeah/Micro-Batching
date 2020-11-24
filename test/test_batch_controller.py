@@ -5,6 +5,7 @@ from async_timeout import timeout
 from datetime import datetime, timedelta
 
 from batcher.batch_controller import BatchController
+from batcher.job import JobResult
 
 
 def test_create_controller_without_required_params(batch_processor):
@@ -54,6 +55,25 @@ def test_create_controller(batch_processor):
     # call controller shutdown method and check loop no longer running
     controller.shutdown()
     assert controller.loop.stopped()
+
+
+def test_add_job_invalid_params(batch_controller):
+    """Test that adding a job with invalid params fails appropriately"""
+    try:
+        with pytest.raises(ValueError):
+            batch_controller.add_job(job="job")
+    finally:
+        batch_controller.shutdown()
+
+
+def test_add_job(batch_controller, job):
+    try:
+        assert len(batch_controller.jobs) == 0
+        job_result = batch_controller.add_job(job=job)
+        assert isinstance(job_result, JobResult)
+        assert len(batch_controller.jobs) == 1
+    finally:
+        batch_controller.shutdown()
 
 
 @pytest.mark.asyncio

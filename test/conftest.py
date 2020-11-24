@@ -13,10 +13,6 @@ from batcher.job import Job
 from batcher.simple_batch_processor import SimpleBatchProcessor
 
 @pytest.fixture
-def job():
-    return Job(job_fn=lambda: 2)
-
-@pytest.fixture
 def make_job():
     def _make_job():
         return Job(job_fn=lambda: 2)
@@ -24,8 +20,8 @@ def make_job():
     yield _make_job
 
 @pytest.fixture
-def job_result(job: Job):
-    return JobResult(job=job)
+def job(make_job):
+    return make_job()
 
 @pytest.fixture
 def make_job_result(make_job):
@@ -35,6 +31,10 @@ def make_job_result(make_job):
     yield _make_job_result
 
 @pytest.fixture
+def job_result(make_job_result):
+    return make_job_result()
+
+@pytest.fixture
 def batch_processor():
     return SimpleBatchProcessor()
 
@@ -42,7 +42,7 @@ def batch_processor():
 def make_batch_controller(batch_processor):
     controllers = []
 
-    def _make_batch_controller(batch_size, batch_interval):
+    def _make_batch_controller(batch_size=10, batch_interval=10):
         return BatchController(
             batch_size=batch_size, batch_interval=batch_interval, batch_processor=batch_processor)
 
@@ -52,3 +52,7 @@ def make_batch_controller(batch_processor):
     for controller in controllers:
         print ("Shutting down controller")
         controller.shutdown()
+
+@pytest.fixture
+def batch_controller(make_batch_controller):
+    return make_batch_controller()

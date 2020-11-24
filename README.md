@@ -45,5 +45,6 @@ If you have Vagrant installed, the easiest way to run this sample program would 
 
 ## TODO Items
 
+* perhaps `JobResult` shouldn't implement `complete`? Just expose a method to set the result?
 * it would be nicer to use events to detect when `JobResults` are ready, so that
   a sleep-and-check loop isn't necessary

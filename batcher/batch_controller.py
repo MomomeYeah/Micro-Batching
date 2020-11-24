@@ -73,7 +73,8 @@ class BatchController:
         if self.shutting_down:
             return None
 
-        # otherwise, add job to queue and return result object
+        # otherwise, add job to queue and return result object. Note that we
+        # rely on JobResult to validate the input job
         result = JobResult(job=job)
         self.jobs.append(result)
 
